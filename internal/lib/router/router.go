@@ -17,6 +17,12 @@ func NewRouter() *router {
 	}
 }
 
+func (r *router) Group(path string) *router {
+	return &router{
+		mux: r.mux.PathPrefix(path).Subrouter(),
+	}
+}
+
 func (r *router) Mount(path string, handler http.HandlerFunc) {
 	r.mux.HandleFunc(path, handler)
 }
