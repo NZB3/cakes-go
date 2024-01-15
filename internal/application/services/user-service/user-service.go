@@ -8,7 +8,7 @@ import (
 
 type repository interface {
 	GetUser(ctx context.Context, login string) (*models.User, error)
-	GetUsers(ctx context.Context) ([]*models.User, error)
+	GetAllUsers(ctx context.Context) ([]models.User, error)
 	CreateUser(ctx context.Context, user *models.User) error
 	UpdateUser(ctx context.Context, user *models.User) error
 	DeleteUser(ctx context.Context, login string) error
@@ -53,16 +53,16 @@ func (s *service) GetUser(ctx context.Context, login string) (*models.User, erro
 	}
 }
 
-func (s *service) GetUsers(ctx context.Context) ([]*models.User, error) {
+func (s *service) GetUsers(ctx context.Context) ([]models.User, error) {
 	errChan := make(chan error)
-	usersChan := make(chan []*models.User)
+	usersChan := make(chan []models.User)
 
 	go func() {
 		select {
 		case <-ctx.Done():
 			errChan <- ctx.Err()
 		default:
-			users, err := s.repository.GetUsers(ctx)
+			users, err := s.repository.GetAllUsers(ctx)
 			if err != nil {
 				errChan <- err
 				return
