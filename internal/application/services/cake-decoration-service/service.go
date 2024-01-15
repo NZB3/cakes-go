@@ -8,10 +8,10 @@ import (
 
 type repository interface {
 	GetAllCakeDecorations(ctx context.Context) ([]models.CakeDecoration, error)
-	GetCakeDecoration(ctx context.Context, name string) (*models.CakeDecoration, error)
+	GetCakeDecoration(ctx context.Context, article int) (*models.CakeDecoration, error)
 	CreateCakeDecoration(ctx context.Context, cakeDecoration *models.CakeDecoration) error
 	UpdateCakeDecoration(ctx context.Context, cakeDecoration *models.CakeDecoration) error
-	DeleteCakeDecoration(ctx context.Context, name string) error
+	DeleteCakeDecoration(ctx context.Context, article int) error
 }
 
 type service struct {
@@ -56,7 +56,7 @@ func (s *service) GetCakeDecorations(ctx context.Context) ([]models.CakeDecorati
 	}
 }
 
-func (s *service) GetCakeDecoration(ctx context.Context, name string) (*models.CakeDecoration, error) {
+func (s *service) GetCakeDecoration(ctx context.Context, article int) (*models.CakeDecoration, error) {
 	errChan := make(chan error)
 	cakeDecorationChan := make(chan *models.CakeDecoration)
 
@@ -65,7 +65,7 @@ func (s *service) GetCakeDecoration(ctx context.Context, name string) (*models.C
 		case <-ctx.Done():
 			errChan <- ctx.Err()
 		default:
-			cakeDecoration, err := s.repository.GetCakeDecoration(ctx, name)
+			cakeDecoration, err := s.repository.GetCakeDecoration(ctx, article)
 			if err != nil {
 				errChan <- err
 				return
@@ -115,7 +115,7 @@ func (s *service) UpdateCakeDecoration(ctx context.Context, cakeDecoration model
 	return <-errChan
 }
 
-func (s *service) DeleteCakeDecoration(ctx context.Context, name string) error {
+func (s *service) DeleteCakeDecoration(ctx context.Context, article int) error {
 	errChan := make(chan error, 1)
 	defer close(errChan)
 
@@ -124,7 +124,7 @@ func (s *service) DeleteCakeDecoration(ctx context.Context, name string) error {
 		case <-ctx.Done():
 			errChan <- ctx.Err()
 		default:
-			errChan <- s.repository.DeleteCakeDecoration(ctx, name)
+			errChan <- s.repository.DeleteCakeDecoration(ctx, article)
 		}
 	}()
 
