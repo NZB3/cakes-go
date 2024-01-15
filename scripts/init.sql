@@ -111,7 +111,7 @@ create table if not exists orders(
     examples varchar(255)
 );
 
-create table if not exists instrument (
+create table if not exists tools (
     name varchar(255) not null primary key,
     description text,
     equipment_type varchar(255),
