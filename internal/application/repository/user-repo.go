@@ -17,8 +17,8 @@ func (r *repository) GetUser(ctx context.Context, login string) (*models.User, e
 	return &user, nil
 }
 
-func (r *repository) GetUsers(ctx context.Context) ([]*models.User, error) {
-	users := make([]*models.User, 0)
+func (r *repository) GetUsers(ctx context.Context) ([]models.User, error) {
+	users := make([]models.User, 0)
 
 	err := r.db.WithContext(ctx).Find(&users).Error
 	if err != nil {
