@@ -15,7 +15,7 @@ func (r *repository) GetAllCakeDecorations(ctx context.Context) ([]models.CakeDe
 	return cakeDecorations, nil
 }
 
-func (r *repository) GetCakeDecoration(ctx context.Context, article string) (*models.CakeDecoration, error) {
+func (r *repository) GetCakeDecoration(ctx context.Context, article int) (*models.CakeDecoration, error) {
 	var cakeDecoration models.CakeDecoration
 	err := r.db.WithContext(ctx).Where("article = ?", article).First(&cakeDecoration).Error
 	if err != nil {
@@ -43,7 +43,7 @@ func (r *repository) UpdateCakeDecoration(ctx context.Context, cakeDecoration *m
 	return nil
 }
 
-func (r *repository) DeleteCakeDecoration(ctx context.Context, article string) error {
+func (r *repository) DeleteCakeDecoration(ctx context.Context, article int) error {
 	err := r.db.WithContext(ctx).Where("article = ?", article).Delete(&models.CakeDecoration{}).Error
 	if err != nil {
 		return err
