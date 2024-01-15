@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	main_controller "github.com/nzb3/cakes-go/internal/application/controllers/main-controller"
 	user_controller "github.com/nzb3/cakes-go/internal/application/controllers/user-controller"
@@ -50,6 +51,10 @@ func (a *app) Run(ctx context.Context) {
 	a.log.Info("Starting server")
 
 	if err := a.server.ListenAndServe(); err != nil {
+		if errors.Is(err, http.ErrServerClosed) {
+			a.log.Info("Server closed")
+			return
+		}
 		a.log.Errorf("error starting server: %s", err.Error())
 	}
 }
