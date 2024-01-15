@@ -27,7 +27,7 @@ func (r *repository) GetTool(ctx context.Context, name string) (*models.Tool, er
 	return &tool, nil
 }
 
-func (r *repository) GetTools(ctx context.Context) ([]models.Tool, error) {
+func (r *repository) GetAllTools(ctx context.Context) ([]models.Tool, error) {
 	tools := make([]models.Tool, 0)
 
 	err := r.db.WithContext(ctx).Find(&tools).Error
