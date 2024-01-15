@@ -3,6 +3,7 @@ package ingredient_service
 import (
 	"context"
 	"github.com/nzb3/cakes-go/internal/application/models"
+	"github.com/nzb3/cakes-go/internal/lib/logger"
 )
 
 type repository interface {
@@ -14,11 +15,13 @@ type repository interface {
 }
 
 type service struct {
+	log logger.Logger
 	repository
 }
 
-func NewService(repository repository) *service {
+func NewService(log logger.Logger, repository repository) *service {
 	return &service{
+		log:        log,
 		repository: repository,
 	}
 }
