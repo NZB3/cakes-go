@@ -8,7 +8,7 @@ import (
 
 type repository interface {
 	GetUser(ctx context.Context, login string) (*models.User, error)
-	GetUsers(ctx context.Context) ([]*models.User, error)
+	GetAllUsers(ctx context.Context) ([]models.User, error)
 }
 
 type service struct {
