@@ -29,6 +29,7 @@ func NewController(log logger.Logger, services authService) *controller {
 }
 
 func (c *controller) AuthHandler(w http.ResponseWriter, r *http.Request) {
+	c.log.Infof("handling auth at: %s", r.URL.Path)
 	prefix := os.Getenv("API_PREFIX")
 
 	switch r.URL.Path {
