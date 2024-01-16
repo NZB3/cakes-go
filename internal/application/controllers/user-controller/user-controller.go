@@ -7,6 +7,7 @@ import (
 	"github.com/nzb3/cakes-go/internal/lib/logger"
 	"net/http"
 	"os"
+	"path"
 )
 
 type userService interface {
@@ -34,31 +35,28 @@ func (c *controller) UserHandler(w http.ResponseWriter, r *http.Request) {
 
 	prefix := os.Getenv("API_PREFIX")
 
-	switch r.URL.Path {
+	switch path.Join(prefix, path.Base(r.URL.Path)) {
 	case prefix + "/users":
-		switch r.Method {
-		case http.MethodGet:
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
+		c.getAllUsersHandler(w, r)
 	case prefix + "/user":
-		switch r.Method {
-		case http.MethodPost:
-			c.getAllUsersHandler(w, r)
-		}
-	case prefix + "/user/{login}":
-		switch r.Method {
-		case http.MethodGet:
-			c.getUserHandler(w, r)
-		case http.MethodPut:
-			c.updateUserHandler(w, r)
-		case http.MethodDelete:
-			c.deleteUserHandler(w, r)
-		default:
-			http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		}
+		c.handleMethod(w, r)
 	default:
 		http.Error(w, "Not found", http.StatusNotFound)
+	}
+}
+
+func (c *controller) handleMethod(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case http.MethodGet:
+		c.getUserHandler(w, r)
+	case http.MethodPost:
+		c.addUserHandler(w, r)
+	case http.MethodPut:
+		c.updateUserHandler(w, r)
+	case http.MethodDelete:
+		c.deleteUserHandler(w, r)
+	default:
+		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
 	}
 }
 
@@ -93,8 +91,34 @@ func (c *controller) getAllUsersHandler(w http.ResponseWriter, r *http.Request) 
 }
 
 func (c *controller) getUserHandler(w http.ResponseWriter, r *http.Request) {
-	_, _ = w, r
-	// TODO: implement
+	c.log.Infof("handle get user at: %s", r.URL.Path)
+
+	login := r.URL.Query().Get("login")
+	if login == "" {
+		http.Error(w, "Login is required", http.StatusBadRequest)
+		return
+	}
+
+	user, err := c.services.GetUser(r.Context(), login)
+	if err != nil {
+		c.log.Errorf("error handling get user: %w", err)
+
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	js, err := json.Marshal(user)
+	if err != nil {
+		c.log.Errorf("error handling marshal user: %w", err)
+
+		http.Error(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if _, err := w.Write(js); err != nil {
+		c.log.Errorf("error handling write response: %w", err)
+	}
 }
 
 func (c *controller) addUserHandler(w http.ResponseWriter, r *http.Request) {
