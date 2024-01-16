@@ -7,6 +7,8 @@ import (
 	main_controller "github.com/nzb3/cakes-go/internal/application/controllers/main-controller"
 	user_controller "github.com/nzb3/cakes-go/internal/application/controllers/user-controller"
 	"github.com/nzb3/cakes-go/internal/application/repository"
+	ingredient_service "github.com/nzb3/cakes-go/internal/application/services/ingredient-service"
+	tool_service "github.com/nzb3/cakes-go/internal/application/services/tool-service"
 	user_service "github.com/nzb3/cakes-go/internal/application/services/user-service"
 	"github.com/nzb3/cakes-go/internal/lib/logger"
 	"github.com/nzb3/cakes-go/internal/lib/router"
@@ -30,6 +32,9 @@ func (a *app) Run(ctx context.Context) {
 	repo := repository.NewRepository(a.log)
 
 	userService := user_service.NewService(a.log, repo)
+	toolService := tool_service.NewService(a.log, repo)
+	ingredientService := ingredient_service.NewService(a.log, repo)
+
 	//authService := auth_service.NewService(a.log, repo)
 
 	mainController := main_controller.NewController(a.log)

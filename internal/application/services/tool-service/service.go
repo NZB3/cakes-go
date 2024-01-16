@@ -7,11 +7,11 @@ import (
 )
 
 type repository interface {
-	GetAllTools() ([]models.Tool, error)
-	GetTool(name string) (*models.Tool, error)
-	CreateTool(tool models.Tool) error
-	UpdateTool(tool models.Tool) error
-	DeleteTool(name string) error
+	GetAllTools(ctx context.Context) ([]models.Tool, error)
+	GetTool(ctx context.Context, name string) (*models.Tool, error)
+	CreateTool(ctx context.Context, tool *models.Tool) error
+	UpdateTool(ctx context.Context, tool *models.Tool) error
+	DeleteTool(ctx context.Context, name string) error
 }
 
 type service struct {
@@ -38,7 +38,7 @@ func (s *service) GetTools(ctx context.Context) ([]models.Tool, error) {
 		case <-ctx.Done():
 			errChan <- ctx.Err()
 		default:
-			tools, err := s.repository.GetAllTools()
+			tools, err := s.repository.GetAllTools(ctx)
 			if err != nil {
 				errChan <- err
 				return
@@ -49,8 +49,6 @@ func (s *service) GetTools(ctx context.Context) ([]models.Tool, error) {
 	}()
 
 	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
 	case err := <-errChan:
 		return nil, err
 	case tools := <-toolsChan:
@@ -70,7 +68,7 @@ func (s *service) GetTool(ctx context.Context, name string) (*models.Tool, error
 		case <-ctx.Done():
 			errChan <- ctx.Err()
 		default:
-			tool, err := s.repository.GetTool(name)
+			tool, err := s.repository.GetTool(ctx, name)
 			if err != nil {
 				errChan <- err
 				return
@@ -81,8 +79,6 @@ func (s *service) GetTool(ctx context.Context, name string) (*models.Tool, error
 	}()
 
 	select {
-	case <-ctx.Done():
-		return nil, ctx.Err()
 	case err := <-errChan:
 		return nil, err
 	case tool := <-toolChan:
@@ -99,16 +95,11 @@ func (s *service) CreateTool(ctx context.Context, tool models.Tool) error {
 		case <-ctx.Done():
 			errChan <- ctx.Err()
 		default:
-			errChan <- s.repository.CreateTool(tool)
+			errChan <- s.repository.CreateTool(ctx, &tool)
 		}
 	}()
 
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case err := <-errChan:
-		return err
-	}
+	return <-errChan
 }
 
 func (s *service) UpdateTool(ctx context.Context, tool models.Tool) error {
@@ -120,16 +111,11 @@ func (s *service) UpdateTool(ctx context.Context, tool models.Tool) error {
 		case <-ctx.Done():
 			errChan <- ctx.Err()
 		default:
-			errChan <- s.repository.UpdateTool(tool)
+			errChan <- s.repository.UpdateTool(ctx, &tool)
 		}
 	}()
 
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case err := <-errChan:
-		return err
-	}
+	return <-errChan
 }
 
 func (s *service) DeleteTool(ctx context.Context, name string) error {
@@ -141,14 +127,9 @@ func (s *service) DeleteTool(ctx context.Context, name string) error {
 		case <-ctx.Done():
 			errChan <- ctx.Err()
 		default:
-			errChan <- s.repository.DeleteTool(name)
+			errChan <- s.repository.DeleteTool(ctx, name)
 		}
 	}()
 
-	select {
-	case <-ctx.Done():
-		return ctx.Err()
-	case err := <-errChan:
-		return err
-	}
+	return <-errChan
 }
