@@ -8,7 +8,7 @@ import (
 
 type repository interface {
 	GetUser(ctx context.Context, login string) (*models.User, error)
-	GetUsers(ctx context.Context) ([]*models.User, error)
+	GetAllUsers(ctx context.Context) ([]models.User, error)
 }
 
 type service struct {
@@ -24,8 +24,15 @@ func NewService(log logger.Logger, repository repository) *service {
 }
 
 func (s *service) Login(ctx context.Context, login, password string) (*models.User, error) {
-	// TODO: implement
-	return nil, nil
+	user, err := s.repository.GetUser(ctx, login)
+	if err != nil {
+		return nil, nil
+	}
+
+	if user.Password != password {
+		return nil, nil
+	}
+	return user, nil
 }
 
 func (s *service) Refresh(ctx context.Context, refreshToken string) (*models.User, error) {
