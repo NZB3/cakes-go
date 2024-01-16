@@ -46,6 +46,7 @@ func (a *app) Run(ctx context.Context) {
 	r.Mount("/", mainController.MainHandler)
 	r.Mount("/users", userController.UserHandler)
 	r.Mount("/auth", authController.AuthHandler)
+	r.Mount("/login", authController.AuthHandler)
 
 	a.server = &http.Server{
 		Addr:    fmt.Sprintf(":%s", os.Getenv("SERVER_PORT")),
